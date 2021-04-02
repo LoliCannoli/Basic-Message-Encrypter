@@ -1,10 +1,6 @@
 from tkinter import *
 from encyptAndDecrypt import Message
 from cryptography.fernet import Fernet
-import base64
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 def makeWindow():
     window = Tk()
@@ -16,8 +12,40 @@ def makeWindow():
         key = keyText.get(1.0, 'end').strip()
         message = messageText.get(1.0, 'end').strip()
 
+        if(message == 'None or invalid message'):
+            return
+
         if key and message:
             message = Message(message)
+
+            try:
+                key = Fernet(key.encode())
+            except base64.binascii.Error:
+                keyText.delete(1.0, 'end')
+                keyText.insert(1.0, 'Invalid Key')
+                return
+
+            message.encryption(key)
+
+            messageText.delete(1.0, 'end')
+            messageText.insert(1.0, message.message)
+
+        if not message:
+            messageText.insert(1.0, 'None or invalid message')
+        if not key:
+            keyText.insert(1.0, 'None or invalid key')
+
+    def Decrypt():
+
+        key = keyText.get(1.0, 'end').strip()
+        message = messageText.get(1.0, 'end').strip()
+
+        if(message == 'None or invalid message'):
+            return
+
+        if key and message:
+            message = Message(message.encode())
+
             try:
                 key = Fernet(key.encode())
 
@@ -26,33 +54,24 @@ def makeWindow():
                 keyText.insert(1.0, 'Invalid Key')
                 return
 
-        message.encryption(key)
+            message.decryption(key)
 
-        messageText.delete(1.0, 'end')
-        messageText.insert(1.0, message.message)
+            messageText.delete(1.0, 'end')
+            messageText.insert(1.0, message.message)
 
-    def Decrypt():
-        key = keyText.get(1.0, 'end').strip()
-        message = messageText.get(1.0, 'end').strip()
+        if not message:
+            messageText.insert(1.0, 'None or invalid message')
+        if not key:
+            keyText.insert(1.0, 'None or invalid key')
 
-        if key and message:
-            message = Message(message.encode())
-
-        try:
-            key = Fernet(key.encode())
-
-        except base64.binascii.Error:
-            keyText.delete(1.0, 'end')
-            keyText.insert(1.0, 'Invalid Key')
-            return
-
-        message.decryption(key)
-
-        messageText.delete(1.0, 'end')
-        messageText.insert(1.0, message.message)
-
+    def generateKey():
+        key = str(Fernet.generate_key()).split('\'')[1]
+        keyText.delete(1.0, 'end')
+        keyText.insert(1.0, key)
+        
     buttonFrame = Frame(window).pack(side = BOTTOM)
     inputFrame = Frame(window).pack(side = TOP)
+
 
     messageTextLabel = Label(inputFrame, text = 'Your message:').pack()
     messageText = Text(height = 7)
@@ -62,8 +81,10 @@ def makeWindow():
     keyText = Text(height = 2)
     keyText.pack()
 
-    encryptButton = Button(buttonFrame, text = 'Encrypt', width = 40, height = 5, command = Encrypt).pack(side = LEFT)
-    decryptButton = Button(buttonFrame, text = 'Decrypt', width = 40, height = 5, command = Decrypt).pack(side = RIGHT)
+
+    encryptButton = Button(buttonFrame, text = 'Encrypt', width = 25, height = 5, command = Encrypt).pack(side = LEFT)
+    generateButton = Button(buttonFrame, text = 'Generate Key', width = 25, height = 5, command = generateKey).pack(side = LEFT)
+    decryptButton = Button(buttonFrame, text = 'Decrypt', width = 25, height = 5, command = Decrypt).pack(side = RIGHT)
 
     window.mainloop()
 

@@ -1,2 +1,2 @@
 from cryptography.fernet import Fernet
-print(Fernet.generate_key())
+print(str(Fernet.generate_key()).split('\'')[1])
