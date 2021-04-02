@@ -12,12 +12,12 @@ class Message():
 
 
     def decryption(self, key):
-        try:
-            decrypted = key.decrypt(self.message)
-            decrypted = (str(decrypted)).split('\'')[1]
-            self.message = decrypted
-        except:
-            print('Invalid decryption key provided')
+        # try:
+        decrypted = key.decrypt(self.message)
+        decrypted = (str(decrypted)).split('\'')[1]
+        self.message = decrypted
+        # except:
+        #     print('Invalid decryption key provided')
 
 # myHiddenMessage = 'This is a message'
 #
